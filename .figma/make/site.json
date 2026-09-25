@@ -1,0 +1,10 @@
+{
+  "description": "Create and customize interactive digital content effortlessly with intuitive tools designed for designers and marketers to engage their audience.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
