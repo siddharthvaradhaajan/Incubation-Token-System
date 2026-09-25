@@ -1,4 +1,6 @@
-import { foodTokens, students, projects, dailyFoodLists, todayStr } from '../data/mockData';
+'use client';
+
+import { foodTokens, students, projects, dailyFoodLists, todayStr } from '@/data/mockData';
 
 const todayList = dailyFoodLists.find(l => l.date === todayStr);
 const todayTokens = foodTokens.filter(t => t.date === todayStr);
@@ -89,9 +91,9 @@ export default function Reports() {
               const s = students.find(st => st.id === t.studentId);
               return (
                 <tr key={t.id} className="border-b border-slate-50 hover:bg-slate-50">
-                  <td className="py-2.5 pr-6 font-mono text-xs text-indigo-700 font-semibold">{t.tokenNumber}</td>
+                  <td className="py-2.5 pr-6 text-xs text-indigo-700 font-semibold tracking-wide tabular-nums">{t.tokenNumber}</td>
                   <td className="py-2.5 pr-6 font-medium text-slate-700">{s?.name}</td>
-                  <td className="py-2.5 pr-6 font-mono text-xs text-slate-400">{t.studentId}</td>
+                  <td className="py-2.5 pr-6 text-xs text-slate-400 font-medium tracking-wide">{t.studentId}</td>
                   <td className="py-2.5 pr-6 text-slate-600">{t.project}</td>
                   <td className="py-2.5 pr-6 text-slate-500">{t.time}</td>
                 </tr>

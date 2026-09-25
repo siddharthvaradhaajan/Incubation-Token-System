@@ -36,6 +36,11 @@ A modern, full-featured web application designed to streamline student project t
 - Multi-field search and status filtering.
 - Quick redemption actions to mark tokens as *Used* upon cafeteria serving.
 
+### 📄 Food Request Letter Generator (Official PDF)
+- Generate official institutional food requisition letters for catering/mess administration.
+- Built-in PDF generation powered by `jspdf` & `jspdf-autotable` with institution headers, approval signatures, and participant breakdown.
+- Interactive in-app modal preview with direct PDF download and print options.
+
 ### 📈 Reports & Analytics (`/reports`)
 - Visual breakdown of food distribution trends by project and department.
 - Print-ready summary tables for catering verification and administrative audit.
@@ -46,37 +51,47 @@ A modern, full-featured web application designed to streamline student project t
 
 | Category | Technology |
 | :--- | :--- |
-| **Frontend Framework** | [React 19](https://react.dev/) |
-| **Routing** | [React Router v7](https://reactrouter.com/) |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) via `@tailwindcss/vite` |
-| **Build Tooling** | [Vite 8](https://vitejs.dev/) |
+| **Framework** | [Next.js 15](https://nextjs.org/) (App Router) |
+| **UI Library** | [React 19](https://react.dev/) |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) via `@tailwindcss/postcss` |
+| **PDF Generation** | `jspdf` & `jspdf-autotable` |
 | **Language** | [TypeScript 5.7](https://www.typescriptlang.org/) |
-| **Formatting** | `oxfmt` |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-├── public/                # Public static assets
+├── public/                # Static public assets (logos, images)
+│   └── sairam-engineering-college-logo.png
 ├── src/
-│   ├── components/        # Reusable UI components (Layout, Badge, etc.)
-│   ├── data/              # Mock dataset, TypeScript interfaces & initial state
-│   ├── pages/             # Application views & pages
-│   │   ├── Dashboard.tsx      # Overview stats & recent activity log
-│   │   ├── Students.tsx       # Student directory & management
-│   │   ├── Projects.tsx       # Project management & team assignment
-│   │   ├── DailyFoodList.tsx  # Daily food eligibility list builder & finalizer
-│   │   ├── ScanToken.tsx      # Verification scanner & thermal receipt generator
-│   │   ├── FoodTokens.tsx     # Token history & cafeteria redemption tracking
-│   │   ├── Reports.tsx        # Analytics & exportable reports
-│   │   └── Login.tsx          # Login interface
-│   ├── App.tsx            # Main router configuration
-│   ├── main.tsx           # React entrypoint
-│   └── index.css          # Global CSS and Tailwind CSS v4 imports
-├── index.html             # Vite HTML root shell
+│   ├── app/               # Next.js App Router
+│   │   ├── layout.tsx         # Root layout with Inter font & metadata
+│   │   ├── page.tsx           # Redirects to /dashboard
+│   │   ├── globals.css        # Global CSS & Tailwind v4 theme tokens
+│   │   ├── login/
+│   │   │   └── page.tsx       # Login interface
+│   │   └── (dashboard)/       # Authenticated dashboard route group
+│   │       ├── layout.tsx     # Sidebar & top header shell
+│   │       ├── dashboard/     # /dashboard - Metrics & token feed
+│   │       ├── students/      # /students - Student directory & master data
+│   │       ├── projects/      # /projects - Project catalog & team management
+│   │       ├── daily-food-list/ # /daily-food-list - Eligibility list builder
+│   │       ├── scan-token/    # /scan-token - Barcode/QR scanner & thermal printer
+│   │       ├── food-tokens/   # /food-tokens - Token ledger & redemption
+│   │       └── reports/       # /reports - Analytics & catering reports
+│   ├── components/        # Reusable UI components
+│   │   ├── FoodRequestLetterModal.tsx  # Letter generation modal
+│   │   ├── QRCodeSVG.tsx               # SVG QR code rendering
+│   │   ├── SairamLogo.tsx              # Institutional branding
+│   │   └── Badge.tsx                   # Status indicators
+│   ├── data/              # Mock dataset & TypeScript interfaces
+│   │   └── mockData.ts
+│   └── utils/             # Document generation & utility functions
+│       └── generateFoodLetterPdf.ts  # Official food letter PDF builder
+├── next.config.ts         # Next.js configuration
+├── postcss.config.mjs     # PostCSS configuration for Tailwind CSS v4
 ├── package.json           # Dependencies and scripts
-├── vite.config.ts         # Vite configuration with React & Tailwind plugins
 └── tsconfig.json          # TypeScript setup
 ```
 
@@ -85,8 +100,8 @@ A modern, full-featured web application designed to streamline student project t
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **Package Manager**: `pnpm` (recommended) or `npm`
+- **Node.js**: v18.0.0 or higher (Node 22 recommended)
+- **Package Manager**: `npm` or `pnpm`
 
 ### Installation
 
@@ -94,41 +109,41 @@ A modern, full-featured web application designed to streamline student project t
 2. Install dependencies:
 
 ```bash
+npm install
+# or
 pnpm install
 ```
-*(or `npm install`)*
 
 ### Development Server
 
 Run the development server:
 
 ```bash
+npm run dev
+# or
 pnpm dev
 ```
-*(or `npm run dev`)*
 
-Open your browser at `http://localhost:8443` (or the port specified by Vite).
+Open your browser at `http://localhost:3000` (or `http://localhost:8443` inside Figma Make).
 
-### Production Build
+### Type Check & Build
+
+Verify TypeScript types:
+
+```bash
+npm run lint
+```
 
 Create an optimized production build:
 
 ```bash
-pnpm build
+npm run build
 ```
 
 Preview the build locally:
 
 ```bash
-pnpm preview
-```
-
-### Code Formatting
-
-Format code using `oxfmt`:
-
-```bash
-pnpm format
+npm run preview
 ```
 
 ---
@@ -137,6 +152,8 @@ pnpm format
 
 1. **Student & Project Management**: Register students under `/students` and assign them to incubators/projects under `/projects`.
 2. **Daily List Finalization**: Go to `/daily-food-list`, add eligible members for the date, and click **Finalize List**.
-3. **Issuing Food Tokens**: Cafeteria desk staff uses `/scan-token` to search student IDs, verify eligibility, and print thermal token receipts.
-4. **Cafeteria Redemption**: Food service staff marks tokens as **Used** under `/food-tokens`.
-5. **Auditing**: Admins inspect daily metrics and summary reports under `/reports`.
+3. **Official Requisition Letter**: From the Dashboard, generate and export the official **Food Request Letter** (PDF) for catering authorization.
+4. **Issuing Food Tokens**: Cafeteria desk staff uses `/scan-token` to search student IDs, verify eligibility, and print thermal token receipts with QR codes.
+5. **Cafeteria Redemption**: Food service staff marks tokens as **Used** under `/food-tokens`.
+6. **Auditing**: Admins inspect daily metrics and summary reports under `/reports`.
+

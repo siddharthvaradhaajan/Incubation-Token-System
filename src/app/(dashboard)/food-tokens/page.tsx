@@ -1,5 +1,7 @@
+'use client';
+
 import { useState } from 'react';
-import { foodTokens, students, todayStr } from '../data/mockData';
+import { foodTokens, students, todayStr } from '@/data/mockData';
 
 export default function FoodTokens() {
   const [dateFilter, setDateFilter] = useState(todayStr);
@@ -57,9 +59,9 @@ export default function FoodTokens() {
                 const s = students.find(st => st.id === t.studentId);
                 return (
                   <tr key={t.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-4 font-mono text-xs font-semibold text-indigo-700">{t.tokenNumber}</td>
+                    <td className="py-3 px-4 text-xs font-semibold text-indigo-700 tracking-wide tabular-nums">{t.tokenNumber}</td>
                     <td className="py-3 px-4 font-medium text-slate-800">{s?.name ?? '—'}</td>
-                    <td className="py-3 px-4 font-mono text-xs text-slate-500">{t.studentId}</td>
+                    <td className="py-3 px-4 text-xs text-slate-500 font-medium tracking-wide">{t.studentId}</td>
                     <td className="py-3 px-4 text-slate-600">{t.project || '—'}</td>
                     <td className="py-3 px-4 text-slate-500">{t.date}</td>
                     <td className="py-3 px-4 text-slate-500">{t.time}</td>
@@ -85,7 +87,7 @@ export default function FoodTokens() {
             <div className="p-5 space-y-4">
               <div className="text-center bg-indigo-50 rounded-lg p-4">
                 <div className="text-xs text-indigo-500 uppercase tracking-wide mb-1">Token Number</div>
-                <div className="text-xl font-bold font-mono text-indigo-700">{selected.tokenNumber}</div>
+                <div className="text-xl font-bold text-indigo-700 tracking-wide tabular-nums">{selected.tokenNumber}</div>
               </div>
               <div className="space-y-2 text-sm">
                 {[

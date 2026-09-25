@@ -106,17 +106,25 @@ export function generateFoodRequestLetterPdf(
   cursorY += 9;
   doc.text('Thank you for your kind consideration and support.', marginX, cursorY);
 
-  // Sign-off
+  // Sign-off (Left: Incubation Centre, Right: Principal)
   cursorY += 14;
-  doc.text('Yours faithfully,', marginX, cursorY);
+  const rightX = 210 - marginX;
 
-  cursorY += 14;
+  doc.setFont('times', 'normal');
+  doc.setFontSize(11);
+  doc.text('Yours faithfully,', marginX, cursorY);
+  doc.text('Approved by,', rightX, cursorY, { align: 'right' });
+
+  cursorY += 16;
   doc.setFont('times', 'bold');
   doc.text(fromName || '[From Name]', marginX, cursorY);
+  doc.text('Principal', rightX, cursorY, { align: 'right' });
 
   cursorY += 5;
   doc.setFont('times', 'normal');
   doc.text('Incubation Centre', marginX, cursorY);
+  doc.text('Sri Sairam Engineering College', rightX, cursorY, { align: 'right' });
+
   cursorY += 5;
   doc.text('Sri Sairam Engineering College', marginX, cursorY);
 

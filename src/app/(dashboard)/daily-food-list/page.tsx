@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {
   dailyFoodLists as initialLists,
@@ -6,9 +8,9 @@ import {
   type DailyFoodList,
   type EligibilityEntry,
   tomorrowStr,
-} from '../data/mockData';
-import Badge from '../components/Badge';
-import FoodRequestLetterModal from '../components/FoodRequestLetterModal';
+} from '@/data/mockData';
+import Badge from '@/components/Badge';
+import FoodRequestLetterModal from '@/components/FoodRequestLetterModal';
 
 export default function DailyFoodList() {
   const [lists, setLists] = useState<DailyFoodList[]>(initialLists);
@@ -198,7 +200,7 @@ export default function DailyFoodList() {
                 return (
                   <tr key={entry.studentId} className="border-b border-slate-50 hover:bg-slate-50">
                     <td className="py-3 px-4 text-slate-400">{i + 1}</td>
-                    <td className="py-3 px-4 font-mono text-xs text-indigo-700 font-semibold">{entry.studentId}</td>
+                    <td className="py-3 px-4 text-xs text-indigo-700 font-semibold tracking-wide">{entry.studentId}</td>
                     <td className="py-3 px-4 font-medium text-slate-800">{s?.name ?? '—'}</td>
                     <td className="py-3 px-4 text-slate-500">{s?.department}</td>
                     <td className="py-3 px-4 text-slate-600">{entry.project || '—'}</td>
@@ -247,7 +249,7 @@ export default function DailyFoodList() {
                   <div className="border border-emerald-200 bg-emerald-50 rounded-lg p-4">
                     <div className="text-xs font-semibold text-emerald-600 mb-1">Student Found</div>
                     <div className="font-semibold text-slate-800">{foundStudent.name}</div>
-                    <div className="text-sm text-slate-500 font-mono">{foundStudent.id}</div>
+                    <div className="text-sm text-slate-500 font-medium tracking-wide">{foundStudent.id}</div>
                     <div className="text-sm text-slate-500">{foundStudent.department} · Year {foundStudent.year}</div>
                   </div>
                   <div>
@@ -303,7 +305,7 @@ export default function DailyFoodList() {
                           onChange={e => setBulkSelected(prev => e.target.checked ? [...prev, s.id] : prev.filter(id => id !== s.id))}
                           className="accent-indigo-600"
                         />
-                        <span className="font-mono text-xs text-indigo-700 w-16 shrink-0">{s.id}</span>
+                        <span className="text-xs text-indigo-700 font-medium tracking-wide w-16 shrink-0">{s.id}</span>
                         <span className="text-sm text-slate-700">{s.name}</span>
                       </label>
                     ))}

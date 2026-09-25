@@ -1,6 +1,9 @@
+'use client';
+
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import SairamLogo from './SairamLogo';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import SairamLogo from '@/components/SairamLogo';
 
 const navItems = [
   { to: '/dashboard', icon: '⊞', label: 'Dashboard' },
@@ -12,18 +15,23 @@ const navItems = [
   { to: '/reports', icon: '◫', label: 'Reports' },
 ];
 
-export default function Layout() {
-  const navigate = useNavigate();
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const today = new Date().toLocaleDateString('en-IN', {
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   });
 
-  const handleLogout = () => navigate('/login');
+  const handleLogout = () => router.push('/login');
 
   return (
-    <div className="flex h-screen bg-slate-100 overflow-hidden">
+    <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
       {/* Sidebar */}
       <aside
         className="flex flex-col bg-indigo-900 text-white transition-all duration-200 shrink-0 relative z-20 shadow-lg"
@@ -70,23 +78,24 @@ export default function Layout() {
 
         {/* Navigation Items */}
         <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
+          {navItems.map((item) => {
+            const isActive = pathname === item.to || pathname.startsWith(`${item.to}/`);
+            return (
+              <Link
+                key={item.to}
+                href={item.to}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
                   isActive
                     ? 'bg-indigo-600 text-white font-semibold shadow-sm'
                     : 'text-indigo-200 hover:bg-indigo-800/70 hover:text-white'
-                } ${!sidebarOpen ? 'justify-center' : ''}`
-              }
-              title={!sidebarOpen ? item.label : undefined}
-            >
-              <span className="text-base shrink-0 w-5 text-center leading-none">{item.icon}</span>
-              {sidebarOpen && <span className="truncate">{item.label}</span>}
-            </NavLink>
-          ))}
+                } ${!sidebarOpen ? 'justify-center' : ''}`}
+                title={!sidebarOpen ? item.label : undefined}
+              >
+                <span className="text-base shrink-0 w-5 text-center leading-none">{item.icon}</span>
+                {sidebarOpen && <span className="truncate">{item.label}</span>}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* User / Session Area at bottom of Sidebar */}
@@ -111,7 +120,7 @@ export default function Layout() {
             <div className="flex justify-center">
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg text-indigo-300 hover:text-rose-300 hover:bg-indigo-800 transition-colors"
+                className="p-2 rounded-lg text-indigo-300 hover:text-rose-300 hover:bg-indigo-800 transition-colors cursor-pointer"
                 title="Logout"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +134,7 @@ export default function Layout() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header - College branding on left, normal date on right. No duplicate page title */}
+        {/* Top Header - College branding on left, normal date on right */}
         <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
           <div>
             <div className="text-sm font-semibold text-slate-800">Sri Sairam Engineering College</div>
@@ -133,14 +142,13 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center">
-            {/* Normal plain text date without extra design/pill, as requested */}
             <span className="text-sm text-slate-500">{today}</span>
           </div>
         </header>
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

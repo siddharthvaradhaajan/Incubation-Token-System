@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { projects as initialProjects, students, type Project } from '../data/mockData';
-import Badge from '../components/Badge';
+import { projects as initialProjects, students, type Project } from '@/data/mockData';
+import Badge from '@/components/Badge';
 
 type View = 'list' | 'detail';
 
@@ -54,7 +56,7 @@ export default function Projects() {
           <div>
             <h2 className="text-xl font-bold text-slate-800">{proj.name}</h2>
             <div className="flex items-center gap-3 mt-1">
-              <span className="font-mono text-sm text-slate-400">{proj.code}</span>
+              <span className="text-sm text-slate-400 font-medium tracking-wide">{proj.code}</span>
               <Badge status={proj.status} />
             </div>
           </div>
@@ -109,7 +111,7 @@ export default function Projects() {
                     const s = students.find(st => st.id === m.studentId);
                     return s ? (
                       <tr key={m.studentId} className="border-b border-slate-50 hover:bg-slate-50">
-                        <td className="py-2.5 pr-4 font-mono text-xs text-indigo-700 font-semibold">{s.id}</td>
+                        <td className="py-2.5 pr-4 text-xs text-indigo-700 font-semibold tracking-wide">{s.id}</td>
                         <td className="py-2.5 pr-4 font-medium text-slate-700">{s.name}</td>
                         <td className="py-2.5 pr-4 text-slate-500">{s.department}</td>
                         <td className="py-2.5 pr-4 text-slate-500">Year {s.year}</td>
@@ -162,7 +164,7 @@ export default function Projects() {
                     <div className="border border-emerald-200 bg-emerald-50 rounded-lg p-4">
                       <div className="text-xs text-emerald-600 font-semibold mb-1">Student Found</div>
                       <div className="font-semibold text-slate-800">{foundStudent.name}</div>
-                      <div className="text-sm text-slate-500 font-mono">{foundStudent.id}</div>
+                      <div className="text-sm text-slate-500 font-medium tracking-wide">{foundStudent.id}</div>
                       <div className="text-sm text-slate-500">{foundStudent.department} · Year {foundStudent.year}</div>
                       <div className="mt-1"><Badge status={foundStudent.status} /></div>
                     </div>
@@ -207,7 +209,7 @@ export default function Projects() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {projectList.map(p => (
           <div key={p.code} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-indigo-300 transition-colors">
-            <div className="text-xs text-slate-400 font-mono mb-1">{p.code}</div>
+            <div className="text-xs text-slate-400 font-medium tracking-wide mb-1">{p.code}</div>
             <div className="font-bold text-slate-800">{p.name}</div>
             {p.description && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{p.description}</p>}
             <div className="mt-3 flex items-center justify-between text-xs">

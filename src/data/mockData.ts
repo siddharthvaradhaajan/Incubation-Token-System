@@ -121,9 +121,9 @@ export const dailyFoodLists: DailyFoodList[] = [
 ];
 
 export const foodTokens: FoodToken[] = [
-  { id: '1', tokenNumber: 'INC-250925-001', studentId: '23CS101', project: 'AgriCheck', date: todayStr, time: '12:15 PM', status: 'Printed', generatedBy: 'Scanner Staff', printedTime: '12:15 PM' },
-  { id: '2', tokenNumber: 'INC-250925-002', studentId: '23CS102', project: 'Smart Campus', date: todayStr, time: '12:18 PM', status: 'Printed', generatedBy: 'Scanner Staff', printedTime: '12:18 PM' },
-  { id: '3', tokenNumber: 'INC-250925-003', studentId: '23CS103', project: 'AgriCheck', date: todayStr, time: '12:22 PM', status: 'Used', generatedBy: 'Scanner Staff', printedTime: '12:22 PM', usedTime: '12:45 PM' },
-  { id: '4', tokenNumber: 'INC-250925-004', studentId: '23CS104', project: 'HealthTrack', date: todayStr, time: '12:30 PM', status: 'Used', generatedBy: 'Scanner Staff', printedTime: '12:30 PM', usedTime: '12:50 PM' },
+  { id: '1', tokenNumber: 'INC-250925-001', studentId: '23CS101', project: 'AgriCheck', date: todayStr, time: '12:15 PM', status: 'Generated', generatedBy: 'Scanner Staff' },
+  { id: '2', tokenNumber: 'INC-250925-002', studentId: '23CS102', project: 'Smart Campus', date: todayStr, time: '12:18 PM', status: 'Generated', generatedBy: 'Scanner Staff' },
+  { id: '3', tokenNumber: 'INC-250925-003', studentId: '23CS103', project: 'AgriCheck', date: todayStr, time: '12:22 PM', status: 'Generated', generatedBy: 'Scanner Staff' },
+  { id: '4', tokenNumber: 'INC-250925-004', studentId: '23CS104', project: 'HealthTrack', date: todayStr, time: '12:30 PM', status: 'Generated', generatedBy: 'Scanner Staff' },
   { id: '5', tokenNumber: 'INC-250925-005', studentId: '23CS105', project: 'HealthTrack', date: todayStr, time: '12:35 PM', status: 'Generated', generatedBy: 'Scanner Staff' },
 ];

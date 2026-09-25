@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { students, dailyFoodLists, foodTokens as initialTokens, type FoodToken, todayStr } from '../data/mockData';
-import QRCodeSVG from '../components/QRCodeSVG';
+import { students, dailyFoodLists, foodTokens as initialTokens, type FoodToken, todayStr } from '@/data/mockData';
+import QRCodeSVG from '@/components/QRCodeSVG';
 
 type ScanState =
   | 'idle'
@@ -139,7 +141,7 @@ export default function ScanToken() {
           {activeTab === 'scan' ? (
             <div className="p-8 text-center bg-slate-900 text-white relative">
               <div className="text-center mb-5">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-mono font-medium border border-indigo-400/20">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wider border border-indigo-400/20">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                   SCANNER ACTIVE · 60 FPS
                 </div>
@@ -165,7 +167,7 @@ export default function ScanToken() {
                   {/* Animated Horizontal Laser Scan Beam */}
                   <div className="absolute inset-x-2 animate-laser pointer-events-none z-10">
                     <div className="h-0.5 w-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]"></div>
-                    <div className="h-4 w-full bg-gradient-to-b from-cyan-400/20 to-transparent"></div>
+                    <div className="h-4 w-full bg-linear-to-b from-cyan-400/20 to-transparent"></div>
                   </div>
                 </div>
               </div>
@@ -180,7 +182,7 @@ export default function ScanToken() {
                   value={manualId}
                   onChange={e => setManualId(e.target.value)}
                   placeholder="e.g. 23CS101, 23CS102..."
-                  className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono uppercase"
+                  className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase tracking-wide"
                   onKeyDown={e => e.key === 'Enter' && processId(manualId)}
                 />
                 <button
@@ -201,7 +203,7 @@ export default function ScanToken() {
                         setManualId(s.id);
                         processId(s.id);
                       }}
-                      className="px-2.5 py-1 text-xs border border-indigo-200 text-indigo-700 rounded-md hover:bg-indigo-50 font-mono transition-colors cursor-pointer"
+                      className="px-2.5 py-1 text-xs border border-indigo-200 text-indigo-700 rounded-md hover:bg-indigo-50 font-medium tracking-wide transition-colors cursor-pointer"
                     >
                       {s.id} ({s.name.split(' ')[0]})
                     </button>
@@ -231,7 +233,7 @@ export default function ScanToken() {
                 </div>
                 <div>
                   <div className="font-bold text-slate-900 text-base">{student.name}</div>
-                  <div className="font-mono text-xs text-indigo-700 font-semibold">{student.id}</div>
+                  <div className="text-xs text-indigo-700 font-semibold tracking-wide">{student.id}</div>
                   <div className="text-xs text-slate-500">{student.department} · Year {student.year}</div>
                 </div>
               </div>
@@ -239,7 +241,7 @@ export default function ScanToken() {
               {/* Unique Student QR Badge */}
               <div className="text-center shrink-0 p-2 bg-white rounded-lg border border-slate-200 shadow-xs">
                 <QRCodeSVG value={`STUDENT-${student.id}`} size={56} color="#1e1b4b" />
-                <div className="text-[9px] font-mono text-slate-400 mt-0.5">VERIFIED QR</div>
+                <div className="text-[9px] text-slate-400 mt-0.5 tracking-wider">VERIFIED QR</div>
               </div>
             </div>
 
@@ -296,12 +298,12 @@ export default function ScanToken() {
               <div className="flex items-center justify-between p-4 bg-indigo-50/70 border border-indigo-100 rounded-xl">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 mb-0.5">Token Number</div>
-                  <div className="text-2xl font-bold font-mono text-indigo-900">{generatedToken.tokenNumber}</div>
+                  <div className="text-2xl font-bold text-indigo-900 tracking-wide tabular-nums">{generatedToken.tokenNumber}</div>
                 </div>
                 {/* Unique Token QR */}
                 <div className="p-2 bg-white rounded-lg border border-indigo-200 shadow-xs text-center">
                   <QRCodeSVG value={generatedToken.tokenNumber} size={64} color="#312e81" />
-                  <div className="text-[9px] font-mono text-indigo-600 font-semibold mt-0.5">SCAN AT MESS</div>
+                  <div className="text-[9px] text-indigo-600 font-semibold mt-0.5 tracking-wider">SCAN AT MESS</div>
                 </div>
               </div>
 
@@ -312,7 +314,7 @@ export default function ScanToken() {
                 </div>
                 <div>
                   <span className="text-slate-400">Student ID:</span>
-                  <div className="font-mono font-semibold text-slate-800">{student.id}</div>
+                  <div className="font-semibold text-slate-800 tracking-wide">{student.id}</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Meal Date & Time:</span>
@@ -331,10 +333,7 @@ export default function ScanToken() {
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">
               Thermal Receipt Print Preview
             </div>
-            <div
-              className="max-w-xs mx-auto bg-white border border-slate-300 rounded p-4 font-mono text-xs leading-tight shadow-sm text-slate-900"
-              style={{ fontFamily: 'Courier New, monospace' }}
-            >
+            <div className="max-w-xs mx-auto bg-white border border-slate-300 rounded-lg p-5 text-xs leading-tight shadow-sm text-slate-900">
               <div className="text-center border-b border-dashed border-slate-300 pb-3 mb-3">
                 <div className="font-bold text-[13px]">SRI SAIRAM ENGINEERING COLLEGE</div>
                 <div className="text-[11px] text-slate-600">INCUBATION CENTRE</div>
@@ -412,7 +411,7 @@ export default function ScanToken() {
             <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 flex items-center justify-between">
               <div>
                 <div className="text-xs text-slate-400 mb-1">Token Number</div>
-                <div className="font-bold font-mono text-indigo-700 text-lg">{generatedToken.tokenNumber}</div>
+                <div className="font-bold text-indigo-700 text-lg tracking-wide tabular-nums">{generatedToken.tokenNumber}</div>
               </div>
               <QRCodeSVG value={generatedToken.tokenNumber} size={48} color="#1e1b4b" />
             </div>
@@ -445,7 +444,7 @@ export default function ScanToken() {
           </div>
           <div className="p-6 space-y-3 text-center">
             <div className="font-bold text-slate-800">{student.name}</div>
-            <div className="font-mono text-sm text-slate-400">{student.id} · {student.department}</div>
+            <div className="text-sm text-slate-400 font-medium tracking-wide">{student.id} · {student.department}</div>
             <p className="text-sm text-slate-500">
               This student is not included in today's food eligibility list. No food token was issued.
             </p>
@@ -470,7 +469,7 @@ export default function ScanToken() {
           </div>
           <div className="p-6 space-y-3 text-center">
             <p className="text-sm text-slate-500">
-              The scanned student ID <span className="font-mono font-semibold">{scannedId}</span> does not exist in the Student Master registry.
+              The scanned student ID <span className="font-semibold tracking-wide text-slate-700">{scannedId}</span> does not exist in the Student Master registry.
             </p>
             <div className="flex gap-3 justify-center mt-4">
               <button
@@ -496,7 +495,7 @@ export default function ScanToken() {
           <div className="p-6 space-y-3">
             <div className="text-center">
               <div className="font-bold text-slate-800">{student.name}</div>
-              <div className="font-mono text-sm text-slate-400">{student.id}</div>
+              <div className="text-sm text-slate-400 font-medium tracking-wide">{student.id}</div>
             </div>
             <p className="text-sm text-slate-500 text-center">
               A food token has already been generated for this student for today's meal session.
@@ -504,7 +503,7 @@ export default function ScanToken() {
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm flex items-center justify-between">
               <div>
                 <div className="text-xs text-amber-600 font-semibold mb-0.5">Existing Token</div>
-                <div className="font-bold font-mono text-amber-800 text-base">{generatedToken.tokenNumber}</div>
+                <div className="font-bold text-amber-800 text-base tracking-wide tabular-nums">{generatedToken.tokenNumber}</div>
                 <div className="text-xs text-slate-500 mt-0.5">Issued: {generatedToken.time}</div>
               </div>
               <QRCodeSVG value={generatedToken.tokenNumber} size={48} color="#92400e" />

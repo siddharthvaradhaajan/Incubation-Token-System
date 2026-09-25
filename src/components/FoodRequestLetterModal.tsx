@@ -1,4 +1,7 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { generateFoodRequestLetterPdf } from '../utils/generateFoodLetterPdf';
 
 interface StudentInfo {
@@ -22,6 +25,11 @@ export default function FoodRequestLetterModal({
   const [fromName, setFromName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [viewMode, setViewMode] = useState<'both' | 'page1' | 'page2'>('both');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -57,121 +65,129 @@ export default function FoodRequestLetterModal({
     window.print();
   };
 
-  const handleGenerate = () => {
-    if (!validate()) return;
-    setErrorMessage('');
-    setViewMode('both');
-  };
+  // Dedicated 2-page print document portal (rendered directly in body to avoid modal overflow/fixed clipping)
+  const printableDocument = (
+    <div id="food-letter-printable" className="hidden print:block text-slate-900 bg-white">
+      {/* PAGE 1 (PRINT) - Official Letter */}
+      <div className="print-page-1">
+        <div>
+          {/* Date */}
+          <div className="text-right text-sm font-serif mb-6 pt-2">
+            <span className="font-semibold">Date:</span> {formattedDate}
+          </div>
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
-      {/* Printable 2-page document container (visible only during window.print()) */}
-      <div id="food-letter-printable" className="hidden print:block text-slate-900 bg-white">
-        {/* PAGE 1 (PRINT) - Official Letter */}
-        <div className="print-page w-full p-12 min-h-screen flex flex-col justify-between" style={{ breakAfter: 'page', pageBreakAfter: 'always' }}>
-          <div>
-            {/* Date */}
-            <div className="text-right text-sm font-serif mb-6 pt-2">
-              <span className="font-semibold">Date:</span> {formattedDate}
-            </div>
-
-            {/* FROM & TO */}
-            <div className="space-y-6 text-sm font-serif leading-relaxed mb-6">
-              <div>
-                <div className="font-bold uppercase text-xs tracking-wider text-slate-500 mb-1">FROM:</div>
-                <div className="font-semibold text-base">{fromName || '[From Name]'}</div>
-                <div>Incubation Centre</div>
-                <div>Sri Sairam Engineering College</div>
-              </div>
-
-              <div>
-                <div className="font-bold uppercase text-xs tracking-wider text-slate-500 mb-1">TO:</div>
-                <div className="font-semibold">The Principal</div>
-                <div>Sri Sairam Engineering College</div>
-                <div>West Tambaram, Chennai</div>
-              </div>
-            </div>
-
-            {/* SUBJECT */}
-            <div className="text-sm font-serif font-bold my-5 pb-1 border-b border-slate-300">
-              <span>SUBJECT: </span>
-              <span className="underline">Request for Food Arrangement for Night-Stay Students</span>
-            </div>
-
-            {/* LETTER BODY */}
-            <div className="space-y-4 text-sm font-serif leading-relaxed text-justify">
-              <div className="font-bold">RESPECTED SIR,</div>
-              <p>
-                I kindly request you to arrange food facilities for the students who are staying at the college for night stay.
-              </p>
-              <div>
-                <p className="mb-2">The required food arrangements are requested for:</p>
-                <ol className="list-decimal list-inside space-y-1 pl-4 font-medium">
-                  <li>Dinner</li>
-                  <li>Next day's Breakfast</li>
-                  <li>Next day's Lunch</li>
-                </ol>
-              </div>
-              <p>
-                Kindly make the necessary arrangements for the above-mentioned students.
-              </p>
-              <p>
-                The list of students requiring food arrangements is provided on the following page for your reference.
-              </p>
-              <p className="pt-2">Thank you for your kind consideration and support.</p>
-            </div>
-
-            {/* SIGN OFF */}
-            <div className="mt-12 text-sm font-serif">
-              <div>Yours faithfully,</div>
-              <div className="mt-12 font-bold text-base">{fromName || '[From Name]'}</div>
+          {/* FROM & TO */}
+          <div className="space-y-6 text-sm font-serif leading-relaxed mb-6">
+            <div>
+              <div className="font-bold uppercase text-xs tracking-wider text-slate-500 mb-1">FROM:</div>
+              <div className="font-semibold text-base">{fromName.trim() || '[From Name]'}</div>
               <div>Incubation Centre</div>
               <div>Sri Sairam Engineering College</div>
             </div>
-          </div>
 
-          <div className="text-center text-xs font-serif text-slate-400 pt-6">Page 1 of 2</div>
-        </div>
-
-        {/* PAGE 2 (PRINT) - Only List of Students (College header removed as requested, compact width & height) */}
-        <div className="print-page w-full p-12 min-h-screen flex flex-col justify-between">
-          <div>
-            <div className="text-center mb-6 pt-4">
-              <h2 className="text-base font-bold font-serif uppercase tracking-wide text-slate-900">
-                List of Students Requiring Food Arrangement
-              </h2>
-              <p className="text-xs font-serif text-slate-500 mt-1">
-                Food Date: <span className="font-semibold">{formattedDate}</span> &nbsp;|&nbsp; Total Students:{' '}
-                <span className="font-semibold">{studentsList.length}</span>
-              </p>
+            <div>
+              <div className="font-bold uppercase text-xs tracking-wider text-slate-500 mb-1">TO:</div>
+              <div className="font-semibold">The Principal</div>
+              <div>Sri Sairam Engineering College</div>
+              <div>West Tambaram, Chennai</div>
             </div>
-
-            {/* Compact Centered 3-Column Table: fits 20+ students comfortably */}
-            <table className="max-w-xl mx-auto w-full text-xs font-serif border-collapse border border-slate-400">
-              <thead>
-                <tr className="bg-slate-100 border-b border-slate-400 text-slate-900">
-                  <th className="border border-slate-400 px-3 py-1.5 w-14 text-center font-bold">S.No</th>
-                  <th className="border border-slate-400 px-4 py-1.5 text-left font-bold">Student Name</th>
-                  <th className="border border-slate-400 px-4 py-1.5 w-40 text-center font-bold">Student ID</th>
-                </tr>
-              </thead>
-              <tbody>
-                {studentsList.map((st, idx) => (
-                  <tr key={st.studentId} className="border-b border-slate-300">
-                    <td className="border border-slate-400 px-3 py-1.5 text-center text-slate-600">{idx + 1}</td>
-                    <td className="border border-slate-400 px-4 py-1.5 font-medium text-slate-800">{st.name}</td>
-                    <td className="border border-slate-400 px-4 py-1.5 text-center font-mono font-semibold text-slate-900">
-                      {st.studentId}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
-          <div className="text-center text-xs font-serif text-slate-400 pt-6">Page 2 of 2</div>
+          {/* SUBJECT */}
+          <div className="text-sm font-serif font-bold my-5 pb-1 border-b border-slate-300">
+            <span>SUBJECT: </span>
+            <span className="underline">Request for Food Arrangement for Night-Stay Students</span>
+          </div>
+
+          {/* LETTER BODY */}
+          <div className="space-y-4 text-sm font-serif leading-relaxed text-justify">
+            <div className="font-bold">RESPECTED SIR,</div>
+            <p>
+              I kindly request you to arrange food facilities for the students who are staying at the college for night stay.
+            </p>
+            <div>
+              <p className="mb-2">The required food arrangements are requested for:</p>
+              <ol className="list-decimal list-inside space-y-1 pl-4 font-medium">
+                <li>Dinner</li>
+                <li>Next day's Breakfast</li>
+                <li>Next day's Lunch</li>
+              </ol>
+            </div>
+            <p>
+              Kindly make the necessary arrangements for the above-mentioned students.
+            </p>
+            <p>
+              The list of students requiring food arrangements is provided on the following page for your reference.
+            </p>
+            <p className="pt-2">Thank you for your kind consideration and support.</p>
+          </div>
+
+          {/* SIGN OFF */}
+          <div className="mt-12 text-sm font-serif flex items-start justify-between">
+            <div>
+              <div>Yours faithfully,</div>
+              <div className="mt-12 font-bold text-base">{fromName.trim() || '[From Name]'}</div>
+              <div>Incubation Centre</div>
+              <div>Sri Sairam Engineering College</div>
+            </div>
+            <div className="text-right">
+              <div>Approved by,</div>
+              <div className="mt-12 font-bold text-base">Principal</div>
+              <div>Sri Sairam Engineering College</div>
+            </div>
+          </div>
         </div>
+
+        <div className="text-center text-xs font-serif text-slate-400 pt-6">Page 1 of 2</div>
       </div>
+
+      {/* PAGE 2 (PRINT) - Only List of Students */}
+      <div className="print-page-2">
+        <div>
+          <div className="text-center mb-6 pt-4">
+            <h2 className="text-base font-bold font-serif uppercase tracking-wide text-slate-900">
+              List of Students Requiring Food Arrangement
+            </h2>
+            <p className="text-xs font-serif text-slate-500 mt-1">
+              Food Date: <span className="font-semibold">{formattedDate}</span> &nbsp;|&nbsp; Total Students:{' '}
+              <span className="font-semibold">{studentsList.length}</span>
+            </p>
+          </div>
+
+          {/* Compact Centered 3-Column Table: fits 20+ students comfortably */}
+          <table className="max-w-xl mx-auto w-full text-xs font-serif border-collapse border border-slate-400">
+            <thead>
+              <tr className="bg-slate-100 border-b border-slate-400 text-slate-900">
+                <th className="border border-slate-400 px-3 py-1.5 w-14 text-center font-bold">S.No</th>
+                <th className="border border-slate-400 px-4 py-1.5 text-left font-bold">Student Name</th>
+                <th className="border border-slate-400 px-4 py-1.5 w-40 text-center font-bold">Student ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {studentsList.map((st, idx) => (
+                <tr key={st.studentId} className="border-b border-slate-300">
+                  <td className="border border-slate-400 px-3 py-1.5 text-center text-slate-600">{idx + 1}</td>
+                  <td className="border border-slate-400 px-4 py-1.5 font-medium text-slate-800">{st.name}</td>
+                  <td className="border border-slate-400 px-4 py-1.5 text-center font-semibold text-slate-900 tracking-wide">
+                    {st.studentId}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="text-center text-xs font-serif text-slate-400 pt-6">Page 2 of 2</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Portal to document.body so window.print() is not constrained by fixed or overflow styles */}
+      {mounted && typeof document !== 'undefined' && createPortal(printableDocument, document.body)}
+
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
 
       {/* Main UI Modal (hidden during window.print) */}
       <div className="print:hidden bg-slate-100 rounded-2xl shadow-2xl border border-slate-300 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -216,7 +232,7 @@ export default function FoodRequestLetterModal({
                   if (errorMessage) setErrorMessage('');
                 }}
                 placeholder="e.g. Dr. ABC or Mr. S. Kumar"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
               />
               <p className="text-[11px] text-slate-400 mt-1">
                 Appears in "FROM" and sign-off
@@ -230,7 +246,7 @@ export default function FoodRequestLetterModal({
               </label>
               <div className="border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 flex items-center justify-between">
                 <span>{formattedDate}</span>
-                <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-mono">
+                <span className="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-medium tracking-wide">
                   {foodDate}
                 </span>
               </div>
@@ -299,18 +315,6 @@ export default function FoodRequestLetterModal({
 
             {/* D. Main Action Buttons */}
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={handleGenerate}
-                className="px-3.5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Refresh and verify letter preview"
-              >
-                <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                Preview Letter
-              </button>
-
               <button
                 onClick={handlePrint}
                 className="px-3.5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -403,19 +407,28 @@ export default function FoodRequestLetterModal({
                 </div>
 
                 {/* SIGN OFF */}
-                <div className="mt-12 text-sm font-serif">
-                  <div>Yours faithfully,</div>
-                  <div className="mt-10 font-bold text-base text-slate-900">
-                    {fromName.trim() ? (
-                      fromName
-                    ) : (
-                      <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded italic">
-                        [From Name]
-                      </span>
-                    )}
+                <div className="mt-12 text-sm font-serif flex items-start justify-between">
+                  <div>
+                    <div>Yours faithfully,</div>
+                    <div className="mt-10 font-bold text-base text-slate-900">
+                      {fromName.trim() ? (
+                        fromName
+                      ) : (
+                        <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded italic">
+                          [From Name]
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-slate-700">Incubation Centre</div>
+                    <div className="text-slate-700">Sri Sairam Engineering College</div>
                   </div>
-                  <div className="text-slate-700">Incubation Centre</div>
-                  <div className="text-slate-700">Sri Sairam Engineering College</div>
+                  <div className="text-right">
+                    <div>Approved by,</div>
+                    <div className="mt-10 font-bold text-base text-slate-900">
+                      Principal
+                    </div>
+                    <div className="text-slate-700">Sri Sairam Engineering College</div>
+                  </div>
                 </div>
               </div>
 
@@ -464,7 +477,7 @@ export default function FoodRequestLetterModal({
                             <td className="py-1.5 px-4 font-medium text-slate-900 border-r border-slate-200">
                               {st.name}
                             </td>
-                            <td className="py-1.5 px-4 text-center font-mono font-semibold text-slate-800">
+                            <td className="py-1.5 px-4 text-center font-semibold text-slate-800 tracking-wide">
                               {st.studentId}
                             </td>
                           </tr>
@@ -518,5 +531,6 @@ export default function FoodRequestLetterModal({
         </div>
       </div>
     </div>
-  );
+  </>
+);
 }

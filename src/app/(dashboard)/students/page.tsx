@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { students as initialStudents, projects, type Student } from '../data/mockData';
-import Badge from '../components/Badge';
+import { students as initialStudents, projects, type Student } from '@/data/mockData';
+import Badge from '@/components/Badge';
 
 const depts = ['All', 'CSE', 'ME', 'ECE', 'EEE', 'Civil'];
 const years = ['All', '1', '2', '3', '4'];
@@ -60,7 +62,7 @@ export default function Students() {
               </div>
               <div>
                 <div className="font-bold text-slate-800 text-lg">{selected.name}</div>
-                <div className="text-sm text-slate-500 font-mono">{selected.id}</div>
+                <div className="text-sm text-slate-500 font-medium tracking-wide">{selected.id}</div>
               </div>
             </div>
             <div className="space-y-2 text-sm">
@@ -98,7 +100,7 @@ export default function Students() {
                       return (
                         <tr key={p.code} className="border-b border-slate-50">
                           <td className="py-2 pr-4 font-medium text-slate-700">{p.name}</td>
-                          <td className="py-2 pr-4 font-mono text-xs text-slate-400">{p.code}</td>
+                          <td className="py-2 pr-4 text-xs text-slate-400 font-medium">{p.code}</td>
                           <td className="py-2 pr-4 text-slate-600">{member?.role}</td>
                           <td className="py-2"><Badge status={p.status} /></td>
                         </tr>
@@ -171,7 +173,7 @@ export default function Students() {
             <tbody>
               {filtered.map(s => (
                 <tr key={s.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-4 font-mono text-xs text-indigo-700 font-semibold">{s.id}</td>
+                  <td className="py-3 px-4 text-xs text-indigo-700 font-semibold tracking-wide">{s.id}</td>
                   <td className="py-3 px-4 font-medium text-slate-800">{s.name}</td>
                   <td className="py-3 px-4 text-slate-600">{s.department}</td>
                   <td className="py-3 px-4 text-slate-600">Year {s.year}</td>

@@ -1,10 +1,11 @@
+'use client';
+
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { students, projects, foodTokens, dailyFoodLists, todayStr, FoodToken } from '../data/mockData';
-import Badge from '../components/Badge';
+import Link from 'next/link';
+import { students, projects, foodTokens, dailyFoodLists, todayStr, FoodToken } from '@/data/mockData';
+import Badge from '@/components/Badge';
 
 export default function Dashboard() {
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Used' | 'Printed' | 'Generated'>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Daily food list calculations
@@ -12,25 +13,16 @@ export default function Dashboard() {
   const eligibleCount = todayList?.entries.length ?? 0;
   const todayTokensList = useMemo(() => foodTokens.filter(t => t.date === todayStr), []);
   const tokensGeneratedCount = todayTokensList.length;
-  const tokensUsedCount = todayTokensList.filter(t => t.status === 'Used').length;
-  const tokensPrintedCount = todayTokensList.filter(t => t.status === 'Printed').length;
-  const tokensGeneratedPendingPrint = todayTokensList.filter(t => t.status === 'Generated').length;
-  
-  // Find which eligible students haven't generated a token yet
-  const claimedStudentIds = new Set(todayTokensList.map(t => t.studentId));
-  const unclaimedEligible = (todayList?.entries ?? []).filter(e => !claimedStudentIds.has(e.studentId));
 
   // Project distribution
   const projectStats = useMemo(() => {
     return projects.map(proj => {
       const eligibleInProj = (todayList?.entries ?? []).filter(e => e.project === proj.name).length;
       const tokensInProj = todayTokensList.filter(t => t.project === proj.name);
-      const usedInProj = tokensInProj.filter(t => t.status === 'Used').length;
       return {
         project: proj,
         eligible: eligibleInProj,
         tokensIssued: tokensInProj.length,
-        used: usedInProj,
       };
     });
   }, [todayList, todayTokensList]);
@@ -38,7 +30,6 @@ export default function Dashboard() {
   // Filtered token feed
   const filteredTokens = useMemo(() => {
     return todayTokensList.filter(t => {
-      const matchesStatus = statusFilter === 'All' || t.status === statusFilter;
       const student = students.find(s => s.id === t.studentId);
       const matchesSearch =
         searchTerm === '' ||
@@ -46,12 +37,11 @@ export default function Dashboard() {
         t.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.project.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesStatus && matchesSearch;
+      return matchesSearch;
     });
-  }, [todayTokensList, statusFilter, searchTerm]);
+  }, [todayTokensList, searchTerm]);
 
   const issuanceRate = eligibleCount > 0 ? Math.round((tokensGeneratedCount / eligibleCount) * 100) : 0;
-  const redemptionRate = tokensGeneratedCount > 0 ? Math.round((tokensUsedCount / tokensGeneratedCount) * 100) : 0;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -63,7 +53,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            to="/scan-token"
+            href="/scan-token"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition-colors shadow-xs"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +62,7 @@ export default function Dashboard() {
             <span>Scan & Issue Token</span>
           </Link>
           <Link
-            to="/daily-food-list"
+            href="/daily-food-list"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium text-xs rounded-lg transition-colors shadow-xs"
           >
             <span>Food List</span>
@@ -81,7 +71,7 @@ export default function Dashboard() {
       </div>
 
       {/* 2. Primary KPI Metric Cards in Structured Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Metric 1: Eligible Students */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-indigo-200 transition-colors">
           <div className="flex items-center justify-between">
@@ -103,7 +93,7 @@ export default function Dashboard() {
         {/* Metric 2: Tokens Issued */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-indigo-200 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tokens Issued</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tokens Generated</span>
             <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
               🎫
             </span>
@@ -126,25 +116,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Metric 3: Meals Redeemed (Used) */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-indigo-200 transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Redeemed / Used</span>
-            <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
-              🍽
-            </span>
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-900">{tokensUsedCount}</span>
-            <span className="text-xs font-medium text-emerald-600">{redemptionRate}% consumed</span>
-          </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>In Dining Progress:</span>
-            <span className="font-semibold text-slate-700">{tokensPrintedCount + tokensGeneratedPendingPrint} pending</span>
-          </div>
-        </div>
-
-        {/* Metric 4: Active Incubation Registry */}
+        {/* Metric 3: Active Incubation Registry */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-indigo-200 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Students Registry</span>
@@ -191,92 +163,32 @@ export default function Dashboard() {
               </div>
 
               {/* Step 2: Tokens Generated */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold">2</div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-800">Tokens Generated</div>
-                    <div className="text-[11px] text-slate-500">ID scanned or verified</div>
-                  </div>
-                </div>
-                <span className="text-sm font-bold text-sky-700">{tokensGeneratedCount}</span>
-              </div>
-
-              {/* Step 3: Tokens Printed */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">3</div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-800">Printed Slips</div>
-                    <div className="text-[11px] text-slate-500">Thermal paper slip dispatched</div>
-                  </div>
-                </div>
-                <span className="text-sm font-bold text-amber-700">{tokensPrintedCount}</span>
-              </div>
-
-              {/* Step 4: Used / Consumed */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50/70 border border-emerald-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">4</div>
+                  <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">2</div>
                   <div>
-                    <div className="text-xs font-semibold text-emerald-900">Meal Redeemed</div>
-                    <div className="text-[11px] text-emerald-700">Validated at food counter</div>
+                    <div className="text-xs font-semibold text-emerald-900">Tokens Generated</div>
+                    <div className="text-[11px] text-emerald-700">Tokens ready for eligible students</div>
                   </div>
                 </div>
-                <span className="text-sm font-bold text-emerald-700">{tokensUsedCount}</span>
+                <span className="text-sm font-bold text-emerald-700">{tokensGeneratedCount}</span>
               </div>
             </div>
-          </div>
-
-          {/* Pending / Unclaimed Eligible Alert */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                Unclaimed Eligibility ({unclaimedEligible.length})
-              </h3>
-            </div>
-
-            {unclaimedEligible.length > 0 ? (
-              <div className="space-y-2.5">
-                {unclaimedEligible.map(e => {
-                  const s = students.find(stud => stud.id === e.studentId);
-                  return (
-                    <div key={e.studentId} className="p-3 rounded-lg bg-amber-50/60 border border-amber-200/70 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-semibold text-slate-800">{s?.name ?? e.studentId}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">{e.studentId} · {e.project}</div>
-                      </div>
-                      <Link
-                        to={`/scan-token?student=${e.studentId}`}
-                        className="px-2.5 py-1 text-xs font-medium bg-amber-500 hover:bg-amber-600 text-white rounded-md shadow-xs transition-colors"
-                      >
-                        Issue
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-4 rounded-lg bg-slate-50 text-center text-xs text-slate-500 border border-dashed border-slate-200">
-                All eligible students have generated their food token for today.
-              </div>
-            )}
           </div>
 
           {/* Incubation Projects Quota & Status */}
           <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Project Breakdown</h3>
-              <Link to="/projects" className="text-xs text-indigo-600 hover:underline">View all</Link>
+              <Link href="/projects" className="text-xs text-indigo-600 hover:underline">View all</Link>
             </div>
 
             <div className="space-y-3">
-              {projectStats.map(({ project, eligible, tokensIssued, used }) => (
+              {projectStats.map(({ project, eligible, tokensIssued }) => (
                 <div key={project.code} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-slate-700">{project.name}</span>
-                    <span className="text-slate-500 font-mono text-[11px]">{tokensIssued} / {eligible} tokens ({used} used)</span>
+                    <span className="text-slate-500 text-[11px]">{tokensIssued} / {eligible} tokens generated</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                     <div
@@ -297,27 +209,13 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
                 <h3 className="font-bold text-slate-800 text-base">Today's Token Activity</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Live log of tokens issued and dining scans</p>
+                <p className="text-xs text-slate-400 mt-0.5">Live log of tokens generated for food service</p>
               </div>
 
-              {/* Status Filter Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
-                {(['All', 'Used', 'Printed', 'Generated'] as const).map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setStatusFilter(tab)}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                      statusFilter === tab
-                        ? 'bg-white text-indigo-700 shadow-xs font-semibold'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    {tab}
-                    <span className="ml-1 text-[10px] opacity-75">
-                      ({tab === 'All' ? todayTokensList.length : todayTokensList.filter(t => t.status === tab).length})
-                    </span>
-                  </button>
-                ))}
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-100">
+                  {todayTokensList.length} Generated
+                </span>
               </div>
             </div>
 
@@ -332,7 +230,7 @@ export default function Dashboard() {
                   placeholder="Filter by Student ID, Name, or Token #..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
               </div>
               {searchTerm && (
@@ -364,12 +262,12 @@ export default function Dashboard() {
                       const student = students.find(s => s.id === token.studentId);
                       return (
                         <tr key={token.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-3 pr-3 font-mono font-semibold text-indigo-700">
+                          <td className="py-3 pr-3 font-semibold text-indigo-700 tracking-wide tabular-nums">
                             {token.tokenNumber}
                           </td>
                           <td className="py-3 pr-3">
                             <div className="font-medium text-slate-800">{student?.name ?? 'Unknown'}</div>
-                            <div className="text-[11px] text-slate-400 font-mono">{token.studentId} · {student?.department}</div>
+                            <div className="text-[11px] text-slate-400">{token.studentId} · {student?.department}</div>
                           </td>
                           <td className="py-3 pr-3 text-slate-600">
                             <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[11px] font-medium text-slate-700">
@@ -378,16 +276,13 @@ export default function Dashboard() {
                           </td>
                           <td className="py-3 pr-3 text-slate-500">
                             <div>{token.time}</div>
-                            {token.usedTime && (
-                              <div className="text-[10px] text-emerald-600 font-medium">Used at {token.usedTime}</div>
-                            )}
                           </td>
                           <td className="py-3 pr-3">
                             <Badge status={token.status} />
                           </td>
                           <td className="py-3 pl-3 text-right">
                             <Link
-                              to="/food-tokens"
+                              href="/food-tokens"
                               className="text-indigo-600 hover:text-indigo-800 font-medium text-[11px] inline-flex items-center gap-0.5"
                             >
                               View
@@ -412,22 +307,9 @@ export default function Dashboard() {
 
             <div className="pt-3 mt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
               <span>Showing {filteredTokens.length} of {todayTokensList.length} total tokens</span>
-              <Link to="/food-tokens" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              <Link href="/food-tokens" className="text-indigo-600 hover:text-indigo-800 font-medium">
                 Manage All Food Tokens →
               </Link>
-            </div>
-          </div>
-
-          {/* Quick Informational Notice Card */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3.5 text-xs text-slate-600">
-            <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-sm">
-              ℹ
-            </div>
-            <div>
-              <div className="font-semibold text-slate-800">Incubation Canteen Policy Guidelines</div>
-              <p className="mt-0.5 text-slate-500 leading-relaxed">
-                Eligible students must scan their College ID card at the terminal or present their unique token number at the canteen counter. Printed slips are valid only for the designated lunch window (12:00 PM – 2:30 PM). Tokens cannot be transferred or shared.
-              </p>
             </div>
           </div>
         </div>
