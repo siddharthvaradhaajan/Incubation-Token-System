@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import sairamLogo from '../assets/sairam-engineering-college-logo.png';
+import SairamLogo from './SairamLogo';
 
 const navItems = [
   { to: '/dashboard', icon: '⊞', label: 'Dashboard' },
@@ -12,16 +12,6 @@ const navItems = [
   { to: '/reports', icon: '◫', label: 'Reports' },
 ];
 
-const pageTitles: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/students': 'Students',
-  '/projects': 'Projects',
-  '/daily-food-list': 'Daily Food List',
-  '/scan-token': 'Scan & Generate Token',
-  '/food-tokens': 'Food Tokens',
-  '/reports': 'Reports',
-};
-
 export default function Layout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -30,118 +20,125 @@ export default function Layout() {
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   });
 
-  const currentTitle = Object.entries(pageTitles).find(([path]) =>
-    window.location.pathname.startsWith(path)
-  )?.[1] ?? 'Dashboard';
-
   const handleLogout = () => navigate('/login');
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-slate-100 overflow-hidden">
       {/* Sidebar */}
       <aside
-        className="flex flex-col bg-indigo-900 text-white transition-all duration-200 shrink-0"
-        style={{ width: sidebarOpen ? 240 : 64 }}
+        className="flex flex-col bg-indigo-900 text-white transition-all duration-200 shrink-0 relative z-20 shadow-lg"
+        style={{ width: sidebarOpen ? 256 : 68 }}
       >
-        {/* Logo */}
-        <div className="px-3 py-4 border-b border-indigo-800">
-          {sidebarOpen ? (
-            <div>
-              <div className="bg-white rounded-lg px-2 py-1.5">
-                <img
-                  src={sairamLogo}
-                  alt="Sri Sairam Engineering College"
-                  className="w-full h-10 object-contain"
-                />
-              </div>
-              <div className="mt-2 px-1">
-                <div className="font-semibold text-sm leading-tight">Incubation Centre</div>
-                <div className="text-indigo-300 text-xs leading-tight mt-0.5">Food Management</div>
-              </div>
+        {/* Sidebar Header with inside toggle button */}
+        <div className="p-3 border-b border-indigo-800/80">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <SairamLogo collapsed={!sidebarOpen} />
             </div>
-          ) : (
-            <div className="w-10 h-10 mx-auto bg-white rounded-lg overflow-hidden flex items-center">
-              <img
-                src={sairamLogo}
-                alt="Sairam"
-                className="h-8 max-w-none"
-              />
+
+            {/* Collapse toggle button inside expanded sidebar */}
+            {sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="shrink-0 p-1.5 rounded-lg bg-indigo-800/70 hover:bg-indigo-700 text-indigo-200 hover:text-white transition-colors cursor-pointer"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Expand toggle button when sidebar is collapsed (inside sidebar) */}
+          {!sidebarOpen && (
+            <div className="mt-2 text-center">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="w-full py-1 rounded bg-indigo-800/80 hover:bg-indigo-700 text-indigo-200 hover:text-white transition-colors flex items-center justify-center cursor-pointer"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 py-4 overflow-y-auto">
+        {/* Navigation Items */}
+        <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
                   isActive
-                    ? 'bg-indigo-700 text-white font-medium'
-                    : 'text-indigo-200 hover:bg-indigo-800 hover:text-white'
-                }`
+                    ? 'bg-indigo-600 text-white font-semibold shadow-sm'
+                    : 'text-indigo-200 hover:bg-indigo-800/70 hover:text-white'
+                } ${!sidebarOpen ? 'justify-center' : ''}`
               }
               title={!sidebarOpen ? item.label : undefined}
             >
-              <span className="text-base shrink-0 w-5 text-center">{item.icon}</span>
-              {sidebarOpen && <span>{item.label}</span>}
+              <span className="text-base shrink-0 w-5 text-center leading-none">{item.icon}</span>
+              {sidebarOpen && <span className="truncate">{item.label}</span>}
             </NavLink>
           ))}
-
         </nav>
 
-        {/* User area */}
-        <div className="border-t border-indigo-800 p-4">
+        {/* User / Session Area at bottom of Sidebar */}
+        <div className="border-t border-indigo-800/80 p-3 bg-indigo-950/40">
           {sidebarOpen ? (
-            <div>
-              <div className="text-sm font-medium">Admin User</div>
-              <div className="text-indigo-300 text-xs mb-3">Sairam Incubation Staff</div>
+            <div className="flex items-center justify-between">
+              <div className="min-w-0 pr-2">
+                <div className="text-xs font-semibold text-white truncate">Admin User</div>
+                <div className="text-[11px] text-indigo-300 truncate">Incubation In-charge</div>
+              </div>
               <button
                 onClick={handleLogout}
-                className="text-xs text-indigo-300 hover:text-white transition-colors flex items-center gap-1"
+                className="p-1.5 rounded-md text-indigo-300 hover:text-rose-300 hover:bg-indigo-800/60 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                title="Sign out of system"
               >
-                <span>↩</span> Logout
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleLogout}
-              className="text-indigo-300 hover:text-white transition-colors text-center w-full"
-              title="Logout"
-            >↩</button>
+            <div className="flex justify-center">
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-lg text-indigo-300 hover:text-rose-300 hover:bg-indigo-800 transition-colors"
+                title="Logout"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Toggle button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-full w-5 h-10 bg-indigo-700 hover:bg-indigo-600 text-white text-xs flex items-center justify-center rounded-r transition-colors z-10"
-          style={{ marginLeft: sidebarOpen ? 240 : 64, position: 'fixed' }}
-        >
-          {sidebarOpen ? '‹' : '›'}
-        </button>
       </aside>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header - College branding on left, normal date on right. No duplicate page title */}
+        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-xs">
           <div>
-            <h1 className="text-lg font-semibold text-slate-800">{currentTitle}</h1>
-            <p className="text-xs text-slate-400">Sri Sairam Engineering College · Incubation Centre</p>
+            <div className="text-sm font-semibold text-slate-800">Sri Sairam Engineering College</div>
+            <div className="text-xs text-slate-400">Incubation Centre · Food Management System</div>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center">
+            {/* Normal plain text date without extra design/pill, as requested */}
             <span className="text-sm text-slate-500">{today}</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">A</div>
-              <span className="text-sm font-medium text-slate-700 hidden sm:block">Admin</span>
-            </div>
           </div>
         </header>
 
-        {/* Page content */}
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>

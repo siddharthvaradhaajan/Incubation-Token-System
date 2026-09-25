@@ -36,3 +36,39 @@ html, body, #root {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+@keyframes laserSweep {
+  0% { top: 4%; opacity: 0.7; }
+  50% { top: 92%; opacity: 1; }
+  100% { top: 4%; opacity: 0.7; }
+}
+
+.animate-laser {
+  animation: laserSweep 2s ease-in-out infinite;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #food-letter-printable,
+  #food-letter-printable * {
+    visibility: visible;
+  }
+  #food-letter-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+}
