@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { generateFoodRequestLetterPdf } from '../utils/generateFoodLetterPdf';
 
 interface StudentInfo {
   studentId: string;
@@ -55,8 +54,9 @@ export default function FoodRequestLetterModal({
     return true;
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!validate()) return;
+    const { generateFoodRequestLetterPdf } = await import('../utils/generateFoodLetterPdf');
     generateFoodRequestLetterPdf(fromName.trim(), foodDate, studentsList);
   };
 
